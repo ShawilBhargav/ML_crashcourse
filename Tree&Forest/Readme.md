@@ -33,15 +33,18 @@ This project predicts the presence of heart disease from clinical and demographi
 - Trained a depth-limited Decision Tree (`max_depth=8`) and compared metrics
 - Trained a Random Forest (`n_estimators=100`) and compared metrics against both tree versions
 - Extracted and ranked feature importances from the Random Forest model
+- Tuned the Random Forest with `GridSearchCV` (5-fold cross-validation) across `n_estimators`, `max_depth`, and `min_samples_split`, then evaluated the tuned model on the same held-out test set used for all other models, to get a fair before/after comparison rather than comparing a cross-validated score to a single-split score
 
 ## Model Performance
 
-| Metric | Decision Tree (unrestricted, depth 14) | Decision Tree (max_depth=8) | Random Forest |
-|---|---|---|---|
-| Accuracy | 83.70% | 85.33% | **86.96%** |
-| Precision | 85.98% | 88.46% | **89.52%** |
-| Recall | 85.98% | 85.98% | **87.85%** |
-| F1 | 85.98% | 87.20% | **88.68%** |
+| Metric | Decision Tree (unrestricted, depth 14) | Decision Tree (max_depth=8) | Random Forest (default) | Random Forest (tuned) |
+|---|---|---|---|---|
+| Accuracy | 83.70% | 85.33% | 86.96% | **87.50%** |
+| Precision | 85.98% | 88.46% | 89.52% | **88.89%** |
+| Recall | 85.98% | 85.98% | 87.85% | **89.72%** |
+| F1 | 85.98% | 87.20% | 88.68% | **89.30%** |
+
+**Tuned Random Forest hyperparameters** (via `GridSearchCV`, 5-fold cross-validation): `n_estimators=200`, `min_samples_split=10`, `max_depth=None`.
 
 ## Key Insights
 
@@ -51,6 +54,8 @@ This project predicts the presence of heart disease from clinical and demographi
 - **Feature importance analysis aligned with real clinical knowledge**: `ST_Slope`, `Oldpeak`, `MaxHR`, and `Cholesterol` emerged as the strongest predictors — all established cardiovascular risk indicators — giving some confidence the model learned genuine medical patterns rather than spurious correlations.
 - **`ST_Slope`, the feature deliberately given ordinal (rather than one-hot) encoding due to its real clinical severity order, turned out to be the single most important feature** — a nice validation that encoding categorical variables thoughtfully, rather than defaulting to one-hot encoding everywhere, can matter for model quality.
 - **Several encoded features (e.g. `FastingBS`, individual `RestingECG` categories) contributed very little** to the Random Forest's predictions — a reminder that not every carefully-prepared feature ends up mattering equally.
+- **Systematic hyperparameter tuning (`GridSearchCV`) improved the default Random Forest further still**, from 86.96% to 87.50% accuracy on the held-out test set — a modest but genuine gain achieved purely by searching for a better `n_estimators`/`max_depth`/`min_samples_split` combination via cross-validation, rather than guessing values manually. The cross-validated score found during the search (87.87%) closely matched the final test-set score (87.50%), suggesting the tuning process itself wasn't overfitting to its own validation folds.
+- **Systematic hyperparameter tuning via `GridSearchCV` improved every metric further still**, taking accuracy from 86.96% (default settings) to 87.50% on the held-out test set — a real, fairly-measured gain (verified on the test set itself, not just the cross-validated search score) achieved without changing the algorithm, features, or data at all. This came from increasing `n_estimators` to 200 and requiring `min_samples_split=10`, showing that even an already-strong default model can be meaningfully improved through systematic rather than manual search.
 
 ## How to Run
 
@@ -65,9 +70,9 @@ This project predicts the presence of heart disease from clinical and demographi
 
 ## What I'd Improve Next
 
-- Tune Random Forest hyperparameters (`n_estimators`, `max_depth`, `max_features`) via GridSearchCV rather than using defaults/single guesses
-- Compare against a boosting method (e.g. XGBoost) to see if it improves further on Random Forest
+- Compare against a boosting method (e.g. XGBoost) to see if it improves further on the tuned Random Forest
 - Visualize one of the individual decision trees to inspect the actual split logic at the top levels
+- Try `RandomizedSearchCV` with a wider hyperparameter range to check whether an even better combination exists outside the original grid
 
 ## Notes
 

@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
 heart_df = pd.read_csv("heart.csv")
@@ -65,3 +66,22 @@ feature_importance_df = pd.DataFrame({
     'importance': importances
 }).sort_values('importance', ascending=False)
 print(feature_importance_df)
+
+grid_params = {
+    'n_estimators' : [50, 100, 200],
+    'max_depth' : [2, 4, 8, None],
+    'min_samples_split': [2, 5, 10]
+}
+grid_tuning = GridSearchCV(RandomForestClassifier(random_state=42), grid_params, cv=5, scoring='accuracy')
+grid_tuning.fit(x_train, y_train)
+print(f"Best param combi.: {grid_tuning.best_params_}")
+print(f"Combi. cross-fold score: {grid_tuning.best_score_}")
+print(f"Model fitted with best params: {grid_tuning.best_estimator_}")
+
+best_model = grid_tuning.best_estimator_
+y_pred_tuned = best_model.predict(x_test)
+print(f"Accuracy: {accuracy_score(y_test, y_pred_tuned)*100:.2f}%")
+print(f"Precision: {precision_score(y_test, y_pred_tuned)*100:.2f}")
+print(f"Recall: {recall_score(y_test, y_pred_tuned)*100:.2f}")
+print(f"F1: {f1_score(y_test, y_pred_tuned)*100:.2f}")
+print(f"Confusion Matrix: {confusion_matrix(y_test, y_pred_tuned)}")
