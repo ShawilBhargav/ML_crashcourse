@@ -1,0 +1,4 @@
+# CIFAR-10 DATASET
+Cifar10TransferLearning/data/
+.venv/
+.idea/
