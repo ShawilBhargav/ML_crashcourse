@@ -60,32 +60,32 @@ with torch.no_grad():
 print(f"test Accuracy: {100*correct/total:.2f}%")
 
 # Visualising
-# digits.eval()
-# wrong_imgs = []
-# wrong_preds = []
-# wrong_labels = []
-# with torch.no_grad():
-#     for images, labels in test_loader:
-#         outputs = digits(images)
-#         _, predicted = torch.max(outputs, 1)
-#         mismatched = predicted != labels
-#         wrong_imgs.extend(images[mismatched])
-#         wrong_preds.extend(predicted[mismatched])
-#         wrong_labels.extend(labels[mismatched])
-#         if len(wrong_imgs) >= 9:
-#             break
-#
-# fig, axes = plt.subplots(3, 3, figsize=(6, 6))
-# for i, ax in enumerate(axes.flat):
-#     if i < len(wrong_imgs):
-#         ax.imshow(wrong_imgs[i].squeeze(), cmap='gray')
-#         ax.set_title(
-#             f"True: {wrong_labels[i].item()}, "
-#             f"Pred: {wrong_preds[i].item()}"
-#         )
-#     ax.axis('off')
-# plt.tight_layout()
-# plt.show()
+digits.eval()
+wrong_imgs = []
+wrong_preds = []
+wrong_labels = []
+with torch.no_grad():
+    for images, labels in test_loader:
+        outputs = digits(images)
+        _, predicted = torch.max(outputs, 1)
+        mismatched = predicted != labels
+        wrong_imgs.extend(images[mismatched])
+        wrong_preds.extend(predicted[mismatched])
+        wrong_labels.extend(labels[mismatched])
+        if len(wrong_imgs) >= 9:
+            break
+
+fig, axes = plt.subplots(3, 3, figsize=(6, 6))
+for i, ax in enumerate(axes.flat):
+    if i < len(wrong_imgs):
+        ax.imshow(wrong_imgs[i].squeeze(), cmap='gray')
+        ax.set_title(
+            f"True: {wrong_labels[i].item()}, "
+            f"Pred: {wrong_preds[i].item()}"
+        )
+    ax.axis('off')
+plt.tight_layout()
+plt.show()
 
 # CNN (Convolution Neural Network)
 class CNNClassifier(nn.Module):
